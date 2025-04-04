@@ -52,6 +52,21 @@ const sendOtpForLogin = async (req,res)=>{
     }
 }
 
+const getUser = async(req,res)=>{
+    try {
+        const { id } = req.user;
+        const user = await User.findById(id);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+        return res.status(200).json({ user:user });
+    } catch (error) {
+        return res
+            .status(500)
+            .json({ message: "Error fetching user", error: error.message });
+    }
+}
+
 const verifyOtp = async (req,res)=>{
     const { phoneNumber, otp } = req.body;
   
@@ -81,5 +96,27 @@ const verifyOtp = async (req,res)=>{
     }
 }
 
+const updateFCMToken = async (req,res)=>{
+    try {
+        const { userId, fcmToken } = req.body;
 
-module.exports = { register, sendOtpForLogin, verifyOtp }
+        if (!userId || !fcmToken) {
+            return res.status(400).json({ error: "User ID and FCM token are required" });
+        }
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        user.fcmToken = fcmToken; 
+        await user.save();
+
+        return res.json({ success: true, message: "FCM token updated successfully" });
+    } catch (error) {
+        console.error("Error updating FCM token:", error);
+        return res.status(500).json({ error: "Internal server error" });
+    }
+}
+
+module.exports = { register, sendOtpForLogin, verifyOtp, getUser, updateFCMToken }
