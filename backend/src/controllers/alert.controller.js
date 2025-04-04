@@ -3,7 +3,7 @@ const User = require('../models/user.model.js')
 const crypto = require("crypto");
 const sendPushNotification = require('../utils/firebaseUtils.js')
 const makeCall = require('../services/twilioServices.js')
-const { sendAlert } = require('../blockchain.js')
+
 
 const triggerSOS = async (req,res)=>{
    console.log(req.body)
