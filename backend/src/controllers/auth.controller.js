@@ -1,5 +1,6 @@
 const User = require('../models/user.model.js');
-
+const generateOTP = require('../utils/generateOTP.js')
+const generateToken = require('../utils/generateToken.js')
 
 
 const register = async(req,res)=>{
@@ -28,4 +29,57 @@ const register = async(req,res)=>{
     }
 }
 
-module.exports = { register }
+const sendOtpForLogin = async (req,res)=>{
+    try {
+        const { phoneNumber } = req.body;
+        if (!phoneNumber)
+            return res.status(400).json({ message: "Phone number is required" });
+      
+        const user = await User.findOne({ phoneNumber });
+
+        if (!user) return res.status(404).json({ message: "User not found" });
+
+        const otp = generateOTP();
+        console.log(otp, "OTP");
+        user.otp = otp;
+        await user.save();
+      
+        return res.status(200).json({ message: "OTP sent successfully" });
+    } catch (error) {
+        return res
+        .status(500)
+        .json({ message: "Failed to send OTP", error: error.message });
+    }
+}
+
+const verifyOtp = async (req,res)=>{
+    const { phoneNumber, otp } = req.body;
+  
+    if (!phoneNumber || !otp)
+      return res
+        .status(400)
+        .json({ message: "Phone Number and OTP are required" });
+    try {
+      const user = await User.findOne({ phoneNumber });
+      if (!user) return res.status(404).json({ message: "User not found" });
+  
+      if (user.otp === otp) {
+        user.isVerified = true;
+        user.otp = null;
+        await user.save();
+  
+        const token = generateToken(user._id, user.role);
+  
+        return res.status(200).json({ message: "Login successful", token, user });
+      } else {
+        return res.status(400).json({ message: "Invalid OTP" });
+      }
+    } catch (error) {
+      return res
+        .status(500)
+        .json({ message: "Error verifying OTP", error: error.message });
+    }
+}
+
+
+module.exports = { register, sendOtpForLogin, verifyOtp }
