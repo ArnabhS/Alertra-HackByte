@@ -1,4 +1,4 @@
-//import { motion } from "framer-motion"
+import { motion } from "framer-motion"
 import PhoneMockup from "../../components/Home/PhoneMockup"
 import mapImage from "../../assets/Location/map.png";
 
