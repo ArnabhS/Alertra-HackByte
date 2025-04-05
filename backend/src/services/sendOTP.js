@@ -3,10 +3,10 @@ const axios = require('axios');
 
 const sendOTP = async (mobileNumber, otp) => {
   try {
-    const authKey = "ZZDUHerBhwYQ0f3z9kRI";
-    const sender = "RSTEdu";
-    const baseUrl ="http://login5.spearuc.com/MOBILE_APPS_API/sms_api.php";
-    const t_id= "1707173623405426000";
+    const authKey = process.env.ROCK2CONNECT_API_KEY;
+    const sender = process.env.ROCK2CONNECT_SENDER_ID;
+    const baseUrl =process.env.ROCK2CONNECT_API_URL;
+    const t_id= process.env.ROCK2CONNECT_T_ID;
 
    
     const smsText = `Dear Customer , your Registration OTP is ${otp}  -Support Team RisiEdu`;
