@@ -1,7 +1,7 @@
 const User = require('../models/user.model.js');
 const generateOTP = require('../utils/generateOTP.js')
 const generateToken = require('../utils/generateToken.js')
-
+const sendOTP = require('../services/sendOTP.js')
 
 const register = async(req,res)=>{
     const { name,phoneNumber,role, raspberryUID } = req.body;
@@ -43,7 +43,7 @@ const sendOtpForLogin = async (req,res)=>{
         console.log(otp, "OTP");
         user.otp = otp;
         await user.save();
-      
+        await sendOTP(phoneNumber, otp)
         return res.status(200).json({ message: "OTP sent successfully" });
     } catch (error) {
         return res
