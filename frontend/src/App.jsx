@@ -6,6 +6,7 @@ import Loader from "./components/common/Loader";
 import Sidebar from "./components/common/Sidebar/Sidebar";
 import Home from "./pages/Home/Page";
 import SignUp from "./pages/SignUp/Page";
+import Login from "./pages/Login/Page";
 
 function App() {
   const [screenLoading, setScreenLoading] = useState(true);
@@ -17,9 +18,7 @@ function App() {
   }, []);
 
   return (
-    <BrowserRouter>
-      {screenLoading ? <Loader /> : <MainLayout />}
-    </BrowserRouter>
+    <BrowserRouter>{screenLoading ? <Loader /> : <MainLayout />}</BrowserRouter>
   );
 }
 
@@ -37,24 +36,20 @@ function MainLayout() {
           <Sidebar />
         </div>
       )}
-      <div className={`flex-1 ${isDashboardPage ? " w-[94%] mx-auto lg:ml-[250px] h-screen lg:overflow-y-auto" : ""}`}>
-        {!isDashboardPage && <Navbar />} {/* Show Navbar only on non-dashboard pages */}
+      <div
+        className={`flex-1 ${
+          isDashboardPage
+            ? " w-[94%] mx-auto lg:ml-[250px] h-screen lg:overflow-y-auto"
+            : ""
+        }`}
+      >
+        {!isDashboardPage && <Navbar />}{" "}
+        {/* Show Navbar only on non-dashboard pages */}
         <Routes>
-          
-
           {/* 404 Route */}
-          <Route
-            path="/"
-            element={
-              <Home/>
-            }
-          />
-          <Route
-            path="/sign-up"
-            element={
-              <SignUp/>
-            }
-          />
+          <Route path="/" element={<Home />} />
+          <Route path="/sign-up" element={<SignUp />} />
+          <Route path="/login" element={<Login />} />
           <Route
             path="*"
             element={
@@ -64,7 +59,8 @@ function MainLayout() {
             }
           />
         </Routes>
-        {!isDashboardPage && <Footer />} {/* Show Footer only on non-dashboard pages */}
+        {!isDashboardPage && <Footer />}{" "}
+        {/* Show Footer only on non-dashboard pages */}
       </div>
     </div>
   );
