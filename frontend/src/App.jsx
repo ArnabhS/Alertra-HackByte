@@ -18,16 +18,15 @@ function App() {
   }, []);
 
   return (
-    <BrowserRouter>{screenLoading ? <Loader /> : <MainLayout />}</BrowserRouter>
+    <BrowserRouter>
+      {screenLoading ? <Loader /> : <MainLayout />}
+    </BrowserRouter>
   );
 }
 
 function MainLayout() {
   const location = useLocation();
-  const isDashboardPage =
-    location.pathname.startsWith("/dashboard") ||
-    location.pathname.startsWith("/user/dashboard") ||
-    location.pathname.startsWith("/security/dashboard");
+  const isDashboardPage = location.pathname.includes("/dashboard");
 
   return (
     <div className="flex">
@@ -37,16 +36,10 @@ function MainLayout() {
         </div>
       )}
       <div
-        className={`flex-1 ${
-          isDashboardPage
-            ? " w-[94%] mx-auto lg:ml-[250px] h-screen lg:overflow-y-auto"
-            : ""
-        }`}
+        className={`flex-1 ${isDashboardPage ? "w-[94%] mx-auto lg:ml-[250px] h-screen lg:overflow-y-auto" : ""}`}
       >
-        {!isDashboardPage && <Navbar />}{" "}
-        {/* Show Navbar only on non-dashboard pages */}
+        {!isDashboardPage && <Navbar />}
         <Routes>
-          {/* 404 Route */}
           <Route path="/" element={<Home />} />
           <Route path="/sign-up" element={<SignUp />} />
           <Route path="/login" element={<Login />} />
@@ -59,8 +52,7 @@ function MainLayout() {
             }
           />
         </Routes>
-        {!isDashboardPage && <Footer />}{" "}
-        {/* Show Footer only on non-dashboard pages */}
+        {!isDashboardPage && <Footer />}
       </div>
     </div>
   );
