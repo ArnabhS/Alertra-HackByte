@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
+import logo from "../../assets/alertra-logo.jpg"
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -45,9 +46,13 @@ export default function Navbar() {
     >
       <div className="container mx-auto px-4">
         <nav className="flex items-center justify-between h-16 md:h-[4.6rem]">
+          <div className="flex items-center gap-2">
           <Link to="/" className="text-xl md:text-2xl font-semibold tracking-tight text-rose-800">
-            Alertra
+            <img src={logo} className="w-12 h-12"/>
+            
           </Link>
+          <p className="text-xl md:text-2xl font-semibold tracking-tight text-rose-800">Alertra</p>
+          </div>
 
           <div className="hidden md:flex items-center space-x-8">
             {["Home", "Features", "How It Works", "Safety", "FAQ", "Contact"].map((item) => (

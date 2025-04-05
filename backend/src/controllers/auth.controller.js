@@ -2,19 +2,26 @@ const User = require('../models/user.model.js');
 const generateOTP = require('../utils/generateOTP.js')
 const generateToken = require('../utils/generateToken.js')
 const sendOTP = require('../services/sendOTP.js')
+const crypto = require('crypto');
 
-const register = async(req,res)=>{
-    const { name,phoneNumber,role, raspberryUID } = req.body;
-    
+const register = async (req, res) => {
+    console.log(req.body);
+    const { name, phoneNumber, role } = req.body;
+
     try {
         if (!["user", "security"].includes(role)) {
             return res.status(400).json({ message: "Invalid role" });
         }
-        const userExists = await User.findOne({phoneNumber});
-        
-        if(userExists){
-            return res.status(401).json({ message:"User already registered. Please log in" })
-        } 
+
+        const userExists = await User.findOne({ phoneNumber });
+
+        if (userExists) {
+            return res.status(401).json({ message: "User already registered. Please log in" });
+        }
+
+        // Generate a unique Raspberry UID
+        const raspberryUID = crypto.randomBytes(16).toString('hex'); // 32-char string
+
         const newUser = await User.create({
             name,
             phoneNumber,
@@ -25,9 +32,10 @@ const register = async(req,res)=>{
         return res.status(201).json({ message: "User registered successfully", user: newUser });
 
     } catch (error) {
+        console.log(error.message);
         return res.status(500).json({ message: "Error signing up", error: error.message });
     }
-}
+};
 
 const sendOtpForLogin = async (req,res)=>{
     try {

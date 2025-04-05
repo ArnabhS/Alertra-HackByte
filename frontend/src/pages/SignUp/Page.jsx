@@ -1,221 +1,133 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
-import { BellRing, Contact2, ShieldCheck } from 'lucide-react'
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { BellRing, Contact2, ShieldCheck } from 'lucide-react';
 import { SiGoogle } from "react-icons/si";
 import { FaFacebook } from "react-icons/fa";
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
-function App() {
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+function SignUp() {
+	const navigate = useNavigate();
 
 	const [formValue, setFormValue] = useState({
-		role: '',
-		email: '',
-		password: '',
-		rememberMe: false,
-	})
+		name: '',
+		phoneNumber: '',
+		
+		role: 'user', // retained for backend use
+	});
 
 	const [errors, setErrors] = useState({
-		roleError: '',
-		emailError: '',
-		passwordError: '',
-	})
+		nameError: '',
+		phoneError: '',
+	});
 
-	console.log(errors)
-
-	const isEmailValid = () => {
-		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-		return emailRegex.test(formValue.email);
-	}
-
-	const isPasswordValid = () => {
-		const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-		return passwordRegex.test(formValue.password);
-	};	
-
+	const isPhoneValid = () => /^[6-9]\d{9}$/.test(formValue.phoneNumber);
+	
 	const handleError = () => {
-		let newErrors = { roleError: '', emailError: '', passwordError: '' };
-	
-		if (formValue.role === '') {
-			newErrors.roleError = "Role can't be empty";
-		}
-		if (formValue.email === '' || !isEmailValid()) {
-			newErrors.emailError = 'Enter a Valid Email';
-		}
-		if (formValue.password === '' || !isPasswordValid()) {
-			newErrors.passwordError = 'Enter a Valid Password';
-		}
-	
+		const newErrors = {
+			nameError: formValue.name ? '' : 'Name cannot be empty',
+			phoneError: isPhoneValid() ? '' : 'Enter a valid phone number',
+		};
+
 		setErrors(newErrors);
-	}	
+		return Object.values(newErrors).every(err => err === '');
+	};
 
-	const submitForm = () => {
-		handleError();
+	const submitForm = async () => {
+		if (!handleError()) return;
 
-		if (formValue.role && isEmailValid() && isPasswordValid()) {
-			console.log("Form submitted:", formValue);
-		} else {
-			console.log("Form has errors:", errors);
+		try {
+			const res = await fetch(`${BASE_URL}/api/v1/auth/register`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(formValue),
+			});
+
+			if (res.status === 201) {
+				toast.success('User registered successfully!');
+				navigate('/login');
+			} else {
+				const err = await res.json();
+				toast.error(err.message || 'Something went wrong');
+			}
+		} catch {
+			toast.error('Server error. Please try again later.');
 		}
-	}
-	
-	
-	return (
-	<>
-		<div className='w-screen h-auto mt-12 rounded-sm border-grey-300 pt-4 bg-pink-50 flex items-center justify-center crimson'>
-			<div className='w-[90%] h sm:max-w-[200px] md:max-w-[700px] h-auto bg-white rounded-2xl flex flex-row overflow-hidden shadow-[0_0_10px_rgba(0,0,0,0.1)]'>
+	};
 
-				{/* Welcome section */}
-				<div className='w-full bg-pink-200 p-10 hidden md:flex flex-col justify-between'>
+	return (
+		<div className='w-full min-h-screen flex items-center justify-center bg-pink-50 p-4'>
+			<div className='w-full max-w-5xl bg-white rounded-2xl shadow-lg flex flex-col md:flex-row overflow-hidden'>
+				
+				{/* Welcome Section */}
+				<div className='hidden md:flex flex-col justify-between bg-pink-200 p-8 md:w-1/2'>
 					<div>
-						<div className='text-2xl lg:text-3xl font-semibold text-pink-800 pb-4'>
-							Welcome to Alertra
-						</div>
-						<div className='text-sm text-pink-800 font-semibold'>
+						<h2 className='text-3xl font-bold text-pink-800 mb-4'>Welcome to Alertra</h2>
+						<p className='text-sm text-pink-800 font-medium'>
 							Your personal safety companion. Join our community of empowered women.
-						</div>
+						</p>
 					</div>
-					<div className='text-pink-800 flex flex-col space-y-2.5 font-semibold'>
-						<div className='flex flex-row items-center space-x-2'>
-							<ShieldCheck className='w-4 h-4' />
-							<div>Real-time Emergency Tracking</div>
-						</div>
-						<div className='flex flex-row items-center space-x-2'>
-							<Contact2 className='w-4 h-4' />
-							<div>Trusted Emergency Contacts</div>
-						</div>
-						<div className='flex flex-row items-center space-x-2'>
-							<BellRing className='w-4 h-4' />
-							<div>Instant SOS Alerts</div>
-						</div>
+					<div className='mt-6 text-pink-800 font-semibold space-y-2'>
+						<p className='flex items-center gap-2'><ShieldCheck size={16} /> Real-time Emergency Tracking</p>
+						<p className='flex items-center gap-2'><Contact2 size={16} /> Trusted Emergency Contacts</p>
+						<p className='flex items-center gap-2'><BellRing size={16} /> Instant SOS Alerts</p>
 					</div>
 				</div>
 
 				{/* Form Section */}
-				<div className='w-full p-10 flex flex-col items-center justify-between space-y-6'>
+				<div className='w-full md:w-1/2 p-6 sm:p-8 space-y-6'>
 					<div className='text-center'>
-						<div className='text-xl lg:text-2xl font-semibold'>Sign in to your account</div>
-						<div> 
-							<span>Or </span><span className='text-pink-800 font-semibold'><Link>create a new accont</Link></span>
-						</div>
+						<h3 className='text-2xl sm:text-3xl font-semibold'>Create a new account</h3>
+						<p className='text-sm mt-1'>
+							Already registered? <a className='text-pink-800 font-semibold' href='/login'>Login</a>
+						</p>
 					</div>
 
-					<form className='w-full space-y-4'>
+					<form className='space-y-4' onSubmit={(e) => e.preventDefault()}>
+						
+						{/* Name */}
 						<div>
-							<div className='w-full flex flex-row items-center justify-between'>
-								<div className='py-2'>Select Role</div>
-								<>
-								{
-									errors.roleError &&
-									<div className='text-red-600 text-xs'>{errors.roleError}</div>
-								}
-								</>
-							</div>
-							<div className='flex flex-row items-center justify-between space-x-4 text-center'
-
-							>
-								<div 
-									className={`${formValue.role === 'user' ? 'border-pink-800' : ''} w-full pt-2 pb-3 border-[1px] rounded-xl border-[#ababab] hover:border-pink-800 cursor-pointer 
-									transition-all duration-200 ease-in-out 
-									hover:shadow-[0_0_10px_rgba(0,0,0,0.1)] active:scale-95`}
-									onClick={() => {
-										setFormValue({...formValue, role: 'user'})
-									}}	
-								>
-									<div className='font-semibold'>User</div>
-									<div className='text-[#555555] text-sm'>For Women</div>
-								</div>
-								<div 
-									className={`${formValue.role === 'security' ? 'border-pink-800' : ''} w-full pt-2 pb-3 border-[1px] rounded-xl border-[#ababab] hover:border-pink-800 cursor-pointer 
-									transition-all duration-200 ease-in-out 
-									hover:shadow-[0_0_10px_rgba(0,0,0,0.1)] active:scale-95`}
-									onClick={() => {
-										setFormValue({...formValue, role: 'security'})
-									}}
-								>
-									<div className='font-semibold'>Security</div>
-									<div className='text-[#555555] text-sm'>Emergency Contact</div>
-								</div>
-							</div>
-						</div>
-
-						<div className=''>
-							<div className='pb-1'>Email address</div>
-							<input 
-								type="text"
-								value={formValue.email}
-								onChange={(e) => {
-									setFormValue({...formValue, email: e.target.value})
-								}}
-								className='w-full px-4 py-1.5 rounded-lg border-[1px] border-[#ababab] focus:outline-none focus:border-pink-800'
+							<label className='block mb-1 font-medium'>Name</label>
+							<input
+								type='text'
+								value={formValue.name}
+								onChange={(e) => setFormValue({ ...formValue, name: e.target.value })}
+								className='w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-pink-800'
 							/>
-							<>
-							{
-								errors.emailError &&
-								<div className='text-red-600 text-xs'>{errors.emailError}</div>
-							}
-							</>
+							{errors.nameError && <p className='text-red-600 text-xs'>{errors.nameError}</p>}
 						</div>
 
-						<div className=''>
-							<div className='pb-1'>Password</div>
-							<input 
-								type="text"
-								value={formValue.password}
-								onChange={(e) => {
-									setFormValue({...formValue, password: e.target.value})
-								}}
-								className='w-full px-4 py-1.5 rounded-lg border-[1px] border-[#ababab] focus:outline-none focus:border-pink-800'
+						{/* Phone Number */}
+						<div>
+							<label className='block mb-1 font-medium'>Phone Number</label>
+							<input
+								type='text'
+								value={formValue.phoneNumber}
+								onChange={(e) => setFormValue({ ...formValue, phoneNumber: e.target.value })}
+								className='w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-pink-800'
 							/>
-							<>
-							{
-								errors.passwordError &&
-								<div className='text-red-600 text-xs'>{errors.passwordError}</div>
-							}
-							</>
+							{errors.phoneError && <p className='text-red-600 text-xs'>{errors.phoneError}</p>}
 						</div>
 
-						<div className='flex flex-row items-center justify-between'>
+						{/* Password */}
+						
 
-							<div className='flex flex-row items-center space-x-1'>
-								<input 
-									type="checkbox" 
-									value={formValue.rememberMe}
-									onChange={(e) => {
-										setFormValue({...formValue, rememberMe: e.target.checked})
-									}}
-									className='mt-[3px] cursor-pointer'/>
-								<label htmlFor="checkbox">Remember me</label>
-							</div>
-							<Link className='text-pink-800 font-semibold'>Forgot Password</Link>
-
-						</div>
-
-						<div 
+						<button
+							type='submit'
 							onClick={submitForm}
-							className='w-full pt-2.5 pb-3 bg-pink-800 text-white font-semibold text-center rounded-lg cursor-pointer hover:bg-pink-900'
+							className='w-full bg-pink-800 text-white py-3 rounded-lg font-semibold hover:bg-pink-900 transition'
 						>
-							Sign In
-						</div>
+							Register
+						</button>
 					</form>
 
-					<div className='w-full flex flex-row items-center justify-center space-x-1'>
-						<div className='w-full h-[1px] bg-[#ababab]'/>
-						<div className='flex-shrink-0 text-sm text-[#ababab]'>Or continue with</div>
-						<div className='w-full h-[1px] bg-[#ababab]'/>
-					</div>
-
-					<div className='w-full flex flex-row space-x-4'>
-						<div className='w-full border-[1px] border-[#ababab] rounded-lg p-2 flex flex-row items-center justify-center'>
-							<SiGoogle className='w-4 h-4 cursor-pointer hover:text-pink-800' />
-						</div>
-						<div className='w-full border-[1px] border-[#ababab] rounded-lg p-2 flex flex-row items-center justify-center'>
-							<FaFacebook className='w-4 h-4 cursor-pointer hover:text-pink-800' />
-						</div>
-					</div>
+					
 				</div>
 			</div>
 		</div>
-	</>
-	)
+	);
 }
 
-export default App
+export default SignUp;
