@@ -119,4 +119,35 @@ const updateFCMToken = async (req,res)=>{
     }
 }
 
-module.exports = { register, sendOtpForLogin, verifyOtp, getUser, updateFCMToken }
+
+const addEmergencyContacts = async (req,res)=>{
+    try {
+        const { phoneNumber, emergencyContact } = req.body;
+        if (!phoneNumber || !emergencyContact || !emergencyContact.name || !emergencyContact.phoneNumber) {
+            return res.status(400).json({ message: "Phone number, emergency contact name, and phone number are required." });
+        }
+        let user = await User.findOne({ phoneNumber });
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found." });
+        }
+        if (user.emergencyContacts.some(contact => contact.phoneNumber === emergencyContact.phoneNumber)) {
+            return res.status(400).json({ message: "Contact already added." });
+        }
+
+        // Ensure max limit of 3 contacts
+        if (user.emergencyContacts.length >= 5) {
+            return res.status(400).json({ message: "Maximum 5 emergency contacts allowed." });
+        }
+
+        // Add the new emergency contact
+        user.emergencyContacts.push(emergencyContact);
+        await user.save();
+
+        return res.status(200).json({ message: "Emergency contact added successfully.", user });
+    } catch (error) {
+        
+    }
+}
+
+module.exports = { register, sendOtpForLogin, verifyOtp, getUser, updateFCMToken, addEmergencyContacts }
