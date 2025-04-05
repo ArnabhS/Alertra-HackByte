@@ -5,6 +5,7 @@ import Footer from "./components/common/Footer";
 import Loader from "./components/common/Loader";
 import Sidebar from "./components/common/Sidebar/Sidebar";
 import Home from "./pages/Home/Page";
+import SignUp from "./pages/SignUp/Page";
 
 function App() {
   const [screenLoading, setScreenLoading] = useState(true);
@@ -46,6 +47,12 @@ function MainLayout() {
             path="/"
             element={
               <Home/>
+            }
+          />
+          <Route
+            path="/sign-up"
+            element={
+              <SignUp/>
             }
           />
           <Route
