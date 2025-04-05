@@ -3,7 +3,7 @@ import { motion } from "framer-motion"
 import safety from "../../assets/Home/safety.mp4"
 import FeaturesPage from "../Features/Page"
 import TimelinePage from "../Timeline/Page"
-import SafetyPage from "../SafetyFeatures/Page"
+import SafetyPage from "../SafetyFeatures/PAge"
 import FrequentlyAskedQ from "../../components/Home/FrequentlyAskedQ"
 import GetInTouch from "../../components/Home/GetInTouch"
 import DetailsPage from "../Details/Page"
@@ -11,7 +11,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";  
 import Navbar from "../../components/common/Navbar"
 
-const Page = () => {
+const Home = () => {
   const [scrolled, setScrolled] = useState(false);
   const navigate = useNavigate(); 
 
@@ -110,4 +110,4 @@ const Page = () => {
   )
 }
 
-export default Page
+export default Home

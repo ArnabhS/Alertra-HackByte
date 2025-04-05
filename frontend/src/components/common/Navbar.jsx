@@ -1,5 +1,5 @@
-
 import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 
 export default function Navbar() {
@@ -116,4 +116,3 @@ export default function Navbar() {
     </motion.header>
   );
 }
-
