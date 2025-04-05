@@ -1,4 +1,3 @@
-
 import RPi.GPIO as GPIO
 import time
 import os
@@ -11,12 +10,11 @@ import math
 # ✅ Unique Raspberry Pi Identifier
 RASPBERRY_UID = "RPI-001"  # Replace with actual UID if needed
 
-load_dotenv()
+load_dotenv() 
 
 # ✅ API Keys (Replace with actual keys)
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 BACKEND_API_URL = os.getenv("BACKEND_URL")
-
 
 BUTTON_PIN = 17  # GPIO pin connected to the button
 STATUS_FILE = "status.txt"  # File to get status from speech.py
@@ -37,6 +35,7 @@ def reset_status():
     with open(STATUS_FILE, "w") as file:
         file.write("0")
 
+        file.write("0")
 def get_raspberry_uid():
     try:
         with open("/proc/cpuinfo", "r") as f:
@@ -45,7 +44,6 @@ def get_raspberry_uid():
                     return line.split(":")[1].strip()
     except Exception as e:
         return "Unknown"
-
 
 def get_wifi_networks():
     wifi_data = []
@@ -80,10 +78,11 @@ def get_altitude(lat, lng):
     return None
 
 def get_floor_number(altitude):
-    ground_level = 411  # Assume ground level is at 25m
+    ground_level = 511  # Assume ground level is at 25m
     floor_height = 3    # Assume each floor is ~3m high
     floor_number = (altitude - ground_level) / floor_height
     return max(0, (math.floor(floor_number)))  # Ensure it doesn’t go below 0
+
 def send_sos_alert():
     print("🚨 SOS")
     wifi_networks = get_wifi_networks()
@@ -103,7 +102,7 @@ def send_sos_alert():
         try:
             response = requests.post(BACKEND_API_URL, json=alert_data)
             print(response)
-            if response.status_code == 200:
+            if response.status_code == 201:
                 print("✅ SOS alert sent successfully!")
             else:
                 print("❌ Failed to send SOS alert.")
@@ -114,13 +113,26 @@ def send_sos_alert():
 
 print("Press the button or trigger an SOS from speech.py...")
 
+last_button_press_time = 0
+press_interval_threshold = 3  # seconds
 
 try:
     while True:
         button_pressed = GPIO.input(BUTTON_PIN) == GPIO.LOW
         speech_detected = read_status() == 1
 
-        if button_pressed or speech_detected:
+        if button_pressed:
+            current_time = time.time()
+            if current_time - last_button_press_time <= press_interval_threshold:
+                send_sos_alert()
+                reset_status()
+                last_button_press_time = 0  # reset to avoid multiple triggers
+                time.sleep(1)  # Prevent spam
+            else:
+                print("⚠️ Press again to confirm SOS")
+                last_button_press_time = current_time
+
+        elif speech_detected:
             send_sos_alert()
             reset_status()
             time.sleep(1)  # Prevent spam
@@ -128,6 +140,3 @@ try:
         time.sleep(0.1)  # Reduce CPU usage
 except KeyboardInterrupt:
     GPIO.cleanup()  # Cleanup GPIO on exit
-
-
-
