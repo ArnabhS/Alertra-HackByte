@@ -4,7 +4,7 @@ import { useState } from "react"
 import { motion } from "framer-motion"
 import { Camera, Check } from "lucide-react"
 import { Switch } from "../../components/ui/switch"
-import { Button } from "../../components/ui/button"
+import { Button } from "../ui/button"
 import { Input } from "../../components/ui/input"
 
 export default function ProfileSettings() {
